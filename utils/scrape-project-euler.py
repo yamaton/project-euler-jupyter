@@ -1,6 +1,23 @@
 """
-Quick and dirty script to get project euler problem description
+Quick and dirty script to get project euler problem descriptions
+
+Required libraries
+==================
+- [Beautiful Soup](http://www.crummy.com/software/BeautifulSoup/)
+
+Usage:
+======
+```
+$ python scrape-project-euler.py <problem-id>
+```
+
+<problem-id> should be a number, like 42.
+The script produces Markdown/HTML styled text as standard output.
+
+@author yamaton
+@date 2015-10-14
 """
+
 import sys
 import urllib.request
 import bs4
