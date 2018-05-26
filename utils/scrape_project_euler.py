@@ -24,14 +24,14 @@ import bs4
 BASE = "https://projecteuler.net/problem={}"
 
 
-def get_raw_content(problem_id):
+def get_raw(problem_id):
     url = BASE.format(problem_id)
     with urllib.request.urlopen(url) as f:
         rawhtml = f.read()
     return rawhtml
 
 
-def scrape(raw):
+def _scrape_euler_page(raw):
     """
     Scrape html and return dictionary with keys
         'id'      (int)
@@ -40,7 +40,6 @@ def scrape(raw):
         'content' (soup)
     """
     soup = bs4.BeautifulSoup(raw, "html.parser")
-
     tmp = soup.find("h3").get_text()
     prob_id = int(tmp.replace("Problem ", "").split()[0])
     url = BASE.format(prob_id)
@@ -51,16 +50,25 @@ def scrape(raw):
 
 
 def _add_quote(element_tag):
-    lines = ["> " + str(line) for line in element_tag if str(line).strip()]
+    lines = ["> " + str(line).replace("\n", "") for line in element_tag if str(line).strip()]
     return "\n".join(lines)
 
 
-def pretty_print(data):
-    print(f"## Problem {data['id']}")
-    print()
-    print(f"[{data['title']}]({data['url']})")
-    print()
-    print(_add_quote(data["content"]))
+def _format_data(data):
+    lines = [
+        f"## Problem {data['id']}",
+        "",
+        f"[{data['title']}]({data['url']})",
+        "",
+        _add_quote(data["content"]),
+    ]
+    return "\n".join(lines)
+
+
+def get_formatted(problem_num):
+    raw = get_raw(problem_num)
+    data = _scrape_euler_page(raw)
+    return _format_data(data)
 
 
 def main():
@@ -68,9 +76,8 @@ def main():
         sys.exit(f"Usage: python {sys.argv[0]} <problem-number>")
 
     problem_num = int(sys.argv[1])
-    raw = get_raw_content(problem_num)
-    data = scrape(raw)
-    pretty_print(data)
+    s = get_formatted(problem_num)
+    print(s)
 
 
 if __name__ == "__main__":
